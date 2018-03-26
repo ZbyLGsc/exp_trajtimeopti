@@ -1,0 +1,63 @@
+<launch>  
+<!-- Manual Waypoint Generator -->
+  <node pkg="waypoint_generator"
+        name="waypoint_generator"
+        type="waypoint_generator"       
+        output="screen">
+    <!--remap from="~odom" to="/visual_slam/odom"/-->        
+    <remap from="~odom" to="/self_calibration_estimator/odometry"/>        
+    <remap from="~goal" to="/goal"/>
+    <param name="waypoint_type" value="manual"/>    
+  </node>
+
+  <node name   ="pcd_trajectory_node"
+        pkg    ="pcd_trajectory"
+        type   ="pcd_trajectory_node"
+        output = "screen">        
+        <remap from="~waypoints"  to="/waypoint_generator/waypoints"/>
+        <!--remap from="~odometry"   to="/state_ukf/odom"/-->
+
+        <remap from="~odometry"   to="/self_calibration_estimator/odometry"/>
+        <remap from="~PointCloud" to="/cloud_pcd"/>
+        
+        <!--remap from="~PointCloud" to="/MapEngine/RandomMap"/-->
+
+  </node>
+
+  <node name="rviz" 
+      pkg="rviz" 
+      type="rviz" 
+      output="screen"
+      args="-d $(find pcd_trajectory)/launch/rviz_config/rviz_config.rviz"> 
+  </node>
+
+  <node pkg     = "pcd_trajectory"
+        type    = "traj_server"
+        output  = "screen"
+        name    = "trajectory_server">
+        
+        <!-- subscribed topics -->        
+        <remap  from = "~trajectory"        to = "/pcd_trajectory_node/trajectory"/>
+        <!--remap  from = "~odometry"          to = "/state_ukf/odom"/-->
+        
+        <remap  from = "~odometry"          to = "/self_calibration_estimator/odometry"/>
+
+        <!-- advertised topics -->
+        <remap  from = "~position_command"  to = "/position_cmd"/>
+    </node>
+
+  <!-- Visualization -->
+  <node pkg="odom_visualization"
+        name="odom_visualization_ukf"
+        type="odom_visualization"       
+        output="screen">
+    <!--remap from="~odom" to="/visual_slam/odom"/-->
+    <remap from="~odom" to="/self_calibration_estimator/odometry"/>
+    <param name="color/a" value="0.8"/>    
+    <param name="color/r" value="1.0"/>        
+    <param name="color/g" value="0.0"/>        
+    <param name="color/b" value="0.0"/>       
+    <param name="covariance_scale" value="100.0"/>       
+  </node>
+
+</launch>

@@ -1,0 +1,18 @@
+{
+    "files.associations": {
+        "*.ipp": "cpp",
+        "array": "cpp",
+        "slist": "cpp",
+        "initializer_list": "cpp",
+        "core": "cpp",
+        "numericaldiff": "cpp",
+        "iostream": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp",
+        "functional": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "system_error": "cpp"
+    },
+    "python.formatting.provider": "autopep8"
+}

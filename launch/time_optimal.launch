@@ -1,0 +1,126 @@
+<launch>  
+    <!-- Manual Waypoint Generator -->
+<!-- <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
+        <remap from="~goal" to="/goal"/>
+        <param name="waypoint_type" value="manual"/>    
+</node> -->
+<node name="time_optimal_traj" pkg="pcd_trajectory" type="time_optimal_traj" output="screen" respawn="true">        
+        <remap from="~waypoints"       to="/waypoint_generator/waypoints"/>
+        <remap from="~PointCloud"      to="/random_map/AllMap" />
+        <remap from="~odometry"        to="/state_ukf/odom"/>
+
+        <param name="dynamic/vec" value="3.0"/>    
+        <param name="dynamic/acc" value="2.0"/>    
+        <param name="dynamic/max_vec" value="3.0"/>    
+        <param name="dynamic/max_acc" value="1.0"/>    
+
+        <param name="optimization/poly_order_min"           value="5"/>  <!-- min order for the smallest piece of the trajectory -->
+        <param name="optimization/poly_order_max"           value="12"/> <!-- max order for the largest piece of the trajectory -->
+        <param name="optimization/minimize_order"           value="3"/>  <!-- 3 for minimize jerk, 2 for minimize acceleration -->
+        <param name="trajtest/repeat"           value="100"/>  
+        <param name="trajtest/rpct" value="0" type="int"/>
+
+        <!-- boyu zhou -->
+        <param name="grad/alg" value="24" type="int"/>
+        <param name="grad/offset" value="1.5" type="double"/>
+        <param name="grad/retry_offset" value="0.2" type="double"/>
+        <param name="grad/time_limit_1" value="0.06" type="double"/>
+        <param name="grad/time_limit_2" value="0.5" type="double"/>
+        <param name="grad/try_limit" value="0.01" type="double"/>
+        <param name="grad/ws" value="2.0" type="double"/>
+        <param name="grad/ws2" value="100.0" type="double"/>
+        <param name="grad/wc" value="0.1" type="double"/>
+        <param name="grad/segment_time" value="1.0" type="double"/>
+        <param name="grad/mean_v" value="1.0" type="double"/>
+        <param name="grad/init_time" value="0.0" type="double"/>
+        <param name="grad/alpha" value="1.0" type="double"/>
+        <param name="grad/d0" value="0.7" type="double"/>
+        <param name="grad/r" value="1.0" type="double"/>
+        <param name="grad/alphav" value="0.005" type="double"/>
+        <param name="grad/v0" value="2.0" type="double"/>
+        <param name="grad/rv" value="1.0" type="double"/>
+        <param name="grad/alphaa" value="0.005" type="double"/>
+        <param name="grad/a0" value="1.5" type="double"/>
+        <param name="grad/ra" value="1.5" type="double"/>
+        <param name="grad/bos" value="3.0" type="double"/>
+        <param name="grad/vos" value="8.0" type="double"/>
+        <param name="grad/aos" value="10.0" type="double"/>
+        <param name="grad/gd_value" value="5.0" type="double"/>
+        <param name="grad/gd_type" value="1" type="int"/>
+
+        <!-- <param name="deltat" value="0.02" type="double"/> -->
+        <param name="grad/step_num" value="50" type="int"/>
+        <param name="grad/domain_type" value="1" type="int"/>
+        <param name="grad/max_vel_ratio" value="0.5" type="double"/>
+        <param name="grad/max_acc_ratio" value="0.5" type="double"/>
+        <!-- boyu zhou -->
+</node>
+
+  
+<!-- <node pkg="so3_quadrotor_simulator" type="quadrotor_simulator_so3" name="quadrotor_simulator_so3" output="screen">
+        <param name="rate/odom" value="100.0"/>
+        <param name="simulator/init_state_x" value=" 0.0"/>
+        <param name="simulator/init_state_y" value=" 0.0"/>
+
+        <remap from="~odom" to="/visual_slam/odom"/>
+        <remap from="~cmd" to="so3_cmd"/>
+        <remap from="~force_disturbance" to="force_disturbance"/>    
+        <remap from="~moment_disturbance" to="moment_disturbance"/>        
+</node> -->
+ 
+<!-- <node pkg="nodelet" type="nodelet" args="standalone so3_control/SO3ControlNodelet" name="so3_control" required="true" output="screen">
+        <remap from="~odom" to="/state_ukf/odom"/>
+        <remap from="~position_cmd" to="/time_optimal_traj/position_command"/>
+        <remap from="~motors" to="motors"/>
+        <remap from="~corrections" to="corrections"/>
+        <remap from="~so3_cmd" to="so3_cmd"/>
+        <rosparam file="$(find so3_control)/config/gains_hummingbird.yaml"/>
+        <rosparam file="$(find so3_control)/config/corrections_hummingbird.yaml"/>
+        <param name="mass" value="0.74"/>
+        <param name="use_angle_corrections " value="false"/>
+        <param name="use_external_yaw "      value="false"/>
+        <param name="gains/rot/z" value="1.0"/>    
+        <param name="gains/ang/z" value="0.1"/>        
+</node>   -->
+ 
+<!-- <node pkg="so3_disturbance_generator" name="so3_disturbance_generator" type="so3_disturbance_generator" output="screen">
+        <remap from="~odom" to="/visual_slam/odom"/>             
+        <remap from="~noisy_odom" to="/state_ukf/odom"/>          
+        <remap from="~correction" to="/visual_slam/correction"/>   
+        <remap from="~force_disturbance" to="force_disturbance"/>        
+        <remap from="~moment_disturbance" to="moment_disturbance"/>            
+</node> 
+ 
+<node pkg="odom_visualization" name="odom_visualization" type="odom_visualization" output="screen">
+        <remap from="~odom" to="/visual_slam/odom"/>
+        <param name="color/a" value="0.8"/>    
+        <param name="color/r" value="1.0"/>        
+        <param name="color/g" value="0.0"/>        
+        <param name="color/b" value="0.0"/>       
+        <param name="covariance_scale" value="100.0"/>       
+</node> -->
+
+<node name ="random_map" pkg ="pcd_trajectory" type ="random_map" output = "screen">    
+        <remap from="~odometry"   to="/state_ukf/odom"/>    
+        <param name="mapBoundary/lower_x"      value="-20.0"/>
+        <param name="mapBoundary/upper_x"      value=" 20.0"/>
+        <param name="mapBoundary/lower_y"      value="-20.0"  />
+        <param name="mapBoundary/upper_y"      value=" 20.0"/>
+        <param name="mapBoundary/lower_z"      value="  0.0"/>
+        <param name="mapBoundary/upper_z"      value="  3.0"/>
+        <param name="ObstacleShape/lower_rad"  value="0.6"/>
+        <param name="ObstacleShape/upper_rad"  value="1.2"/>
+        <param name="ObstacleShape/lower_hei"  value="1.0"/>
+        <param name="ObstacleShape/upper_hei"  value="5.0"/>        
+        <param name="ObstacleShape/z_limit"    value="6.0"/>       
+        <param name="ObstacleShape/has_ground" value="true"/>       
+        <param name="LocalBoundary/radius"     value="20.0"/>        
+        <param name="ObstacleNum"              value="160"  />        
+        <param name="Resolution"               value="0.2" />                
+        <param name="SensingRate"              value="10.0"/>
+        <param name="SensorModel/fov_horizon"  value="360.0"/>        
+        <param name="SensorModel/fov_vertical" value="30.00"/>        
+        <param name="SensorModel/angular_res"  value="0.5"/>        
+</node>
+
+ </launch>

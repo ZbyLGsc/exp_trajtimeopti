@@ -1,0 +1,24 @@
+<launch>
+<node name ="random_map" pkg ="pcd_trajectory" type ="random_map" output = "screen">    
+        <remap from="~odometry"   to="/state_ukf/odom"/>    
+        <param name="mapBoundary/lower_x"      value="-10.0"/>
+        <param name="mapBoundary/upper_x"      value=" 10.0"/>
+        <param name="mapBoundary/lower_y"      value="-10.0"  />
+        <param name="mapBoundary/upper_y"      value=" 10.0"/>
+        <param name="mapBoundary/lower_z"      value="  0.0"/>
+        <param name="mapBoundary/upper_z"      value="  3.0"/>
+        <param name="ObstacleShape/lower_rad"  value="0.6"/>
+        <param name="ObstacleShape/upper_rad"  value="1.2"/>
+        <param name="ObstacleShape/lower_hei"  value="1.0"/>
+        <param name="ObstacleShape/upper_hei"  value="5.0"/>        
+        <param name="ObstacleShape/z_limit"    value="6.0"/>       
+        <param name="ObstacleShape/has_ground" value="true"/>       
+        <param name="LocalBoundary/radius"     value="20.0"/>        
+        <param name="ObstacleNum"              value="30"  />        
+        <param name="Resolution"               value="0.2" />                
+        <param name="SensingRate"              value="10.0"/>
+        <param name="SensorModel/fov_horizon"  value="360.0"/>        
+        <param name="SensorModel/fov_vertical" value="30.00"/>        
+        <param name="SensorModel/angular_res"  value="0.5"/>        
+</node>
+</launch>

@@ -1,0 +1,49 @@
+<launch>  
+    <!-- Manual Waypoint Generator -->
+<node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
+        <remap from="~goal" to="/goal"/>
+        <param name="waypoint_type" value="manual"/>    
+</node>
+ 
+<node name="simulation_test" pkg="pcd_trajectory" type="simulation_test" output="screen">        
+        <remap from="~waypoints"       to="/waypoint_generator/waypoints"/>
+        <remap from="~PointCloud"      to="/random_map/AllMap" />
+
+        <param name="discreteTraj/l" value="0.5"/> 
+
+        <param name="dynamic/vec" value="2.0"/>    
+        <param name="dynamic/acc" value="1.0"/>    
+        <param name="dynamic/max_vec" value="2.0"/>    
+        <param name="dynamic/max_acc" value="1.0"/>    
+
+        <param name="optimization/poly_order_min"           value="5"/>  <!-- min order for the smallest piece of the trajectory -->
+        <param name="optimization/poly_order_max"           value="12"/> <!-- max order for the largest piece of the trajectory -->
+        <param name="optimization/minimize_order"           value="3"/>  <!-- 3 for minimize jerk, 2 for minimize acceleration -->
+</node>
+  
+<node name ="random_map" pkg ="pcd_trajectory" type ="random_map" output = "screen">    
+        <remap from="~odometry"   to="/state_ukf/odom"/>    
+        <remap from="~position_cmd" to="/position_cmd"  />
+
+        <param name="mapBoundary/lower_x"      value="-50.0"/>
+        <param name="mapBoundary/upper_x"      value=" 50.0"/>
+        <param name="mapBoundary/lower_y"      value="-50.0"  />
+        <param name="mapBoundary/upper_y"      value=" 50.0"/>
+        <param name="mapBoundary/lower_z"      value="  0.0"/>
+        <param name="mapBoundary/upper_z"      value="  3.0"/>
+        <param name="ObstacleShape/lower_rad"  value="0.6"/>
+        <param name="ObstacleShape/upper_rad"  value="1.2"/>
+        <param name="ObstacleShape/lower_hei"  value="1.0"/>
+        <param name="ObstacleShape/upper_hei"  value="5.0"/>        
+        <param name="ObstacleShape/z_limit"    value="6.0"/>       
+        <param name="ObstacleShape/has_ground" value="true"/>       
+        <param name="LocalBoundary/radius"     value="20.0"/>        
+        <param name="ObstacleNum"              value="400"  />        
+        <param name="Resolution"               value="0.2" />                
+        <param name="SensingRate"              value="10.0"/>
+        <param name="SensorModel/fov_horizon"  value="360.0"/>        
+        <param name="SensorModel/fov_vertical" value="30.00"/>        
+        <param name="SensorModel/angular_res"  value="0.5"/>        
+</node>
+
+ </launch>

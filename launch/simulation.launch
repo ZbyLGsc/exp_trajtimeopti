@@ -1,0 +1,132 @@
+<launch>  
+    <!-- Manual Waypoint Generator -->
+<node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
+        <remap from="~odom" to="/visual_slam/odom"/>        
+        <remap from="~goal" to="/goal"/>
+        <param name="waypoint_type" value="manual"/>    
+</node>
+ 
+<node name   ="pcd_trajectory_node" pkg    ="pcd_trajectory" type   ="pcd_trajectory_node" output = "screen">        
+        <remap from="~waypoints"       to="/waypoint_generator/waypoints"/>
+        <remap from="~odometry"        to="/state_ukf/odom"/>
+        <!-- <remap from="~PointCloud" to="/cloud_pcd"/> -->
+        <remap from="~PointCloud"      to="/random_map/RandomMap" />
+        <remap from="~DeltaPointCloud" to="/random_map/DeltaMap"  />
+        <remap from="~position_cmd"    to="/position_cmd"  />
+
+        <param name="sensing_rate"     value="10.0"/>
+        <param name="mapBoundary/lower_x"   value="-50.0"  />
+        <param name="mapBoundary/upper_x"   value=" 50.0"/>
+        <param name="mapBoundary/lower_y"   value="-50.0"  />
+        <param name="mapBoundary/upper_y"   value=" 50.0"/>
+        <param name="mapBoundary/lower_z"   value="  0.0"/>
+        <param name="mapBoundary/upper_z"   value="  3.0"/>
+
+        <param name="PlanParam/safety_margin"    value="0.75" />
+        <param name="PlanParam/search_margin"    value="0.35" />
+        <param name="PlanParam/max_radius"       value="10.0" />
+        <param name="PlanParam/sensing_range"    value="20.0" />
+        <param name="PlanParam/refine_portion"   value="0.5"  />
+        
+        <param name="PlanParam/sample_portion"   value="0.15" />
+        <param name="PlanParam/goal_portion"     value="0.05" />
+
+        <param name="PlanParam/path_find_limit"  value="0.05" />
+        <param name="PlanParam/max_samples"      value="5000" />
+
+        <param name="dynamic/vec"      value="5.0"/>
+        <param name="dynamic/acc"      value="2.0"/>
+        <param name="dynamic/max_vec"      value="3.0"/>
+        <param name="dynamic/max_acc"      value="2.0"/>
+
+        <param name="commitTime"       value="4.0"/>
+
+        <param name="optimization/poly_order_min"           value="5"/>  <!-- min order for the smallest piece of the trajectory -->
+        <param name="optimization/poly_order_max"           value="12"/> <!-- max order for the largest piece of the trajectory -->
+        <param name="optimization/minimize_order"           value="3"/>  <!-- 3 for minimize jerk, 2 for minimize acceleration -->
+</node>
+ 
+<!-- node name="rviz" pkg="rviz" type="rviz" output="screen"
+       args="-d $(find pcd_trajectory)/launch/rviz_config/rviz_config.rviz"> 
+</node -->
+ 
+<node pkg = "pcd_trajectory" type = "traj_server" output = "screen" name = "trajectory_server">
+        <remap  from = "~trajectory"        to = "/pcd_trajectory_node/trajectory"/>
+        <remap  from = "~odometry"          to = "/state_ukf/odom"/>
+        <remap  from = "~position_command"  to = "/position_cmd"/>
+        <!-- <param name="optimization/poly_order"    value="12"/>   -->
+        <param name="optimization/poly_order_min"           value="5"/>  <!--  min order for the smallest piece of the trajectory -->
+        <param name="optimization/poly_order_max"           value="12"/>  <!-- max order for the largest piece of the trajectory -->
+</node>
+ 
+<!-- Simulator -->
+ <node pkg="so3_quadrotor_simulator" type="quadrotor_simulator_so3" name="quadrotor_simulator_so3" output="screen">
+        <param name="rate/odom" value="100.0"/>
+        <param name="simulator/init_state_x" value=" 0.0"/>
+        <param name="simulator/init_state_y" value=" 0.0"/>
+
+        <remap from="~odom" to="/visual_slam/odom"/>
+        <remap from="~cmd" to="so3_cmd"/>
+        <remap from="~force_disturbance" to="force_disturbance"/>    
+        <remap from="~moment_disturbance" to="moment_disturbance"/>        
+</node>
+ 
+<node pkg="nodelet" type="nodelet" args="standalone so3_control/SO3ControlNodelet" name="so3_control" required="true" output="screen">
+        <remap from="~odom" to="/state_ukf/odom"/>
+        <remap from="~position_cmd" to="position_cmd"/>
+        <remap from="~motors" to="motors"/>
+        <remap from="~corrections" to="corrections"/>
+        <remap from="~so3_cmd" to="so3_cmd"/>
+        <rosparam file="$(find so3_control)/config/gains_hummingbird.yaml"/>
+        <rosparam file="$(find so3_control)/config/corrections_hummingbird.yaml"/>
+        <param name="mass" value="0.74"/>
+        <param name="use_angle_corrections " value="false"/>
+        <param name="use_external_yaw "      value="false"/>
+        <param name="gains/rot/z" value="1.0"/>    
+        <param name="gains/ang/z" value="0.1"/>        
+</node>  
+ 
+<node pkg="so3_disturbance_generator" name="so3_disturbance_generator" type="so3_disturbance_generator" output="screen">
+        <remap from="~odom" to="/visual_slam/odom"/>             
+        <remap from="~noisy_odom" to="/state_ukf/odom"/>          
+        <remap from="~correction" to="/visual_slam/correction"/>   
+        <remap from="~force_disturbance" to="force_disturbance"/>        
+        <remap from="~moment_disturbance" to="moment_disturbance"/>            
+</node> 
+ 
+    <!-- Visualization -->
+<node pkg="odom_visualization" name="odom_visualization" type="odom_visualization" output="screen">
+        <remap from="~odom" to="/visual_slam/odom"/>
+        <param name="color/a" value="0.8"/>    
+        <param name="color/r" value="1.0"/>        
+        <param name="color/g" value="0.0"/>        
+        <param name="color/b" value="0.0"/>       
+        <param name="covariance_scale" value="100.0"/>       
+</node>
+ 
+<node name ="random_map" pkg ="pcd_trajectory" type ="random_map" output = "screen">    
+        <remap from="~odometry"   to="/state_ukf/odom"/>    
+        <remap from="~position_cmd" to="/position_cmd"  />
+
+        <param name="mapBoundary/lower_x"      value="-50.0"/>
+        <param name="mapBoundary/upper_x"      value=" 50.0"/>
+        <param name="mapBoundary/lower_y"      value="-50.0"  />
+        <param name="mapBoundary/upper_y"      value=" 50.0"/>
+        <param name="mapBoundary/lower_z"      value="  0.0"/>
+        <param name="mapBoundary/upper_z"      value="  3.0"/>
+        <param name="ObstacleShape/lower_rad"  value="0.6"/>
+        <param name="ObstacleShape/upper_rad"  value="1.2"/>
+        <param name="ObstacleShape/lower_hei"  value="1.0"/>
+        <param name="ObstacleShape/upper_hei"  value="5.0"/>        
+        <param name="ObstacleShape/z_limit"    value="6.0"/>       
+        <param name="ObstacleShape/has_ground" value="true"/>       
+        <param name="LocalBoundary/radius"     value="20.0"/>        
+        <param name="ObstacleNum"              value="600"  />        
+        <param name="Resolution"               value="0.2" />                
+        <param name="SensingRate"              value="10.0"/>
+        <param name="SensorModel/fov_horizon"  value="360.0"/>        
+        <param name="SensorModel/fov_vertical" value="30.00"/>        
+        <param name="SensorModel/angular_res"  value="0.5"/>        
+</node>
+
+ </launch>

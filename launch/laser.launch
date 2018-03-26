@@ -1,0 +1,16 @@
+<launch>
+	<arg name="itr_cycle" default="10"/>
+	<arg name="fitness_thre" default="0.4"/>
+	<arg name="corres_dis" default="4.0"/>
+	<arg name="key_thre"   default="2.0"/>
+
+	<!--node name="rosbag" pkg="rosbag" type="play" respawn="false" args="-s 20 /home/bbgf/my_catkin_ws/data/laser_odom/2016-03-17-22-54-57.bag"/-->
+	
+	<node pkg="laser_odom" type="icp_node" name="icp_node" output="screen">
+		<param name = "itr_cycle"    value = "$(arg itr_cycle)"/>
+		<param name = "fitness_thre" value = "$(arg fitness_thre)"/>
+		<param name = "corres_dis"   value = "$(arg corres_dis)"/>
+		<param name = "key_thre"     value = "$(arg key_thre)"/>
+	</node>
+	
+</launch>

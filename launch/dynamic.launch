@@ -1,0 +1,43 @@
+<launch>
+    <node pkg="pcd_trajectory" type="kinodynamic_search" name="kinodynamic_search" output="screen">
+        <remap from="~waypoints"  to="/waypoint_generator/waypoints"/>
+        <remap from="~odometry"   to="/visual_slam/odom"/>
+        <remap from="~map"        to="/mock_map"/> 
+
+        <param name="KinoPlanning/start_x"    value="0.0"/> 
+        <param name="KinoPlanning/start_y"    value="0.0"/> 
+        <param name="KinoPlanning/start_z"    value="0.0"/> 
+        <param name="KinoPlanning/end_x"      value="7.5"/> 
+        <param name="KinoPlanning/end_y"      value="5.0"/> 
+        <param name="KinoPlanning/end_z"      value="0.0"/> 
+        <param name="KinoPlanning/init_vel_x" value="0.0"/> 
+        <param name="KinoPlanning/init_vel_y" value="0.0"/> 
+        <param name="KinoPlanning/init_vel_z" value="0.0"/>         
+        <param name="KinoPlanning/init_acc_x" value="0.0"/> 
+        <param name="KinoPlanning/init_acc_y" value="0.0"/> 
+        <param name="KinoPlanning/init_acc_z" value="0.0"/> 
+        <param name="KinoPlanning/vel"        value="1.0"/> 
+        <param name="KinoPlanning/acc"        value="0.5"/> 
+        <param name="KinoPlanning/max_vel"    value="2.0"/> 
+        <param name="KinoPlanning/max_acc"    value="1.0"/> 
+    </node>
+
+    <node pkg="mockamap" type="mockamap_node" name="mockamap_node" output="screen">
+        <param name="seed" type="int" value="233"/>
+        <param name="update_freq" type="double" value="10.0"/>
+
+        <param name="resolution" type="double" value="0.1"/>
+
+        <param name="x_length" type="int" value="20"/>
+        <param name="y_length" type="int" value="20"/>
+        <param name="z_length" type="int" value="2"/>
+
+        <param name="type" type="int" value="1"/>
+        <param name="complexity"    type="double" value="0.01"/>
+        <param name="fill"          type="double" value="0.12"/>
+        <param name="fractal"       type="int"    value="1"/>
+        <param name="attenuation"   type="double" value="0.2"/>
+    </node>
+
+  
+</launch>
